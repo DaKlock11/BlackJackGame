@@ -1,3 +1,8 @@
 .Hand {
     background-color: darkgrey;
 }
+
+.cardHandler {
+    display: flex;
+    flex-direction: row;
+}
