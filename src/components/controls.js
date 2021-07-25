@@ -1,13 +1,13 @@
 import React, { useState,useEffect } from 'react';
 
-const Controls = (onChildClick) => {
+const Controls = (handleStartGame, drawCard) => {
 
-    const [ card, setCard ] = useState(null)
 
     return (
 
         <div className="controls">
-            <button onClick={onChildClick}>Hit</button>
+            <button onClick={handleStartGame}>START GAME</button>
+            <button onClick={drawCard}>Hit</button>
             <button>Stay</button>
             <button>Reset</button>
         </div>

@@ -1,34 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import './hand.css';
 
-const Hand = () => {
-    const [cardState, setCardState] = useState({ cards: [] });
+const Hand = props => {
 
-    useEffect(() => {
-        async function getCard() {
-            const resp = await fetch(
-                "https://deckofcardsapi.com/api/deck/new/draw/?count=2"
-            );
-            const data = await resp.json();
-            setCardState(data);
-            console.log(data);
-        }
-        getCard();
-    }, []);
+    const { items } = props;
 
-    drawCard = () => {
-        
-    }
 
     return (
         <div className="Hand">
             <div>Your Hand</div>
             <div className="cardHandler">
-                {cardState.cards.map((card, index) => (
-                    <div key={index}>
-                        <img src={card.image} alt="Drawn card" />
-                    </div>
-                ))}
+                {items.map((playersHand) => {
+                    return (
+                        <div>
+                            <img src={playersHand.image} />
+                        </div>
+                    )
+                    
+                })}
             </div>
         </div>
     )
