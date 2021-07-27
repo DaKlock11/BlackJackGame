@@ -1,19 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import './hand.css';
 
-const Hand = props => {
+const drawButton = ({ draw, isDisabled }) => {
 
-    const { items } = props;
+    let CardHolder_URL = 'https://raw.githubusercontent.com/PTR-KLK/oko-card-game/master/src/back.png'
+
+    const CardHolder = () => {
+        fetch(CardHolder_URL)
+    }
+
+    return (
+       <figure>
+            <button className="playHandDrawCard" onClick={draw} disabled={isDisabled}>
+                <img src={CardHolder} alt="Hidden Card" />
+            </button>
+       </figure> 
+        
+    )
+}
+
+const Hand = ({playersHand, drawCards}) => {
 
 
     return (
         <div className="Hand">
             <div>Your Hand</div>
+            {playersHand.draws === 0 ? (
+                <drawButton draw={() => drawCards(2)} />
+            ) : (
+                <drawButton draw={() => drawCards(1)} />
+            )}
+            
             <div className="cardHandler">
-                {items.map((playersHand) => {
+                {playersHand.cards.map((playersHand) => {
                     return (
-                        <div>
-                            <img src={playersHand.image} />
+                        <div key={playersHand.code}>
+                            <img src={playersHand.image} alt={`${playersHand.suit} ${playersHand.value}`}  />
                         </div>
                     )
                     
