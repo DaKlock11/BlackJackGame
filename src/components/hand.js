@@ -20,7 +20,7 @@ const drawButton = ({ draw, isDisabled }) => {
 }
 
 const Hand = ({playersHand, drawCards}) => {
-
+    
 
     return (
         <div className="Hand">
@@ -32,7 +32,7 @@ const Hand = ({playersHand, drawCards}) => {
             )}
             
             <div className="cardHandler">
-                {playersHand.cards.map((playersHand) => {
+                {playersHand.map((playersHand) => {
                     return (
                         <div key={playersHand.code}>
                             <img src={playersHand.image} alt={`${playersHand.suit} ${playersHand.value}`}  />

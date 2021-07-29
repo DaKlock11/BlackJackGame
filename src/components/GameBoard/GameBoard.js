@@ -2,11 +2,18 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Hand from '../hand';
 import Dealer from '../dealer';
 import Controls from '../controls';
+import Player from '../Player';
 import './GameBoard.css';
 
 const DECK_OF_CARDS_API_ENDPOINT = 'https://deckofcardsapi.com/api/deck/new/';
 const DECK_OF_CARDS_URL = 'https://deckofcardsapi.com/api/deck';
 
+
+const deckofCards = 'https://deckofcardsapi.com/api/deck/new/';
+
+
+
+/*
 const initialPlayerState = {
     id: 1,
     cards: [],
@@ -39,46 +46,80 @@ export const changeValue = (obj) => {
     return newObj;
   };
 
+*/
+
+
+
+
 const GameBoard = () => {
     
     const [apiState, setApiState] = useState(null);
     const [deckId, setDeckId] = useState("");
     const [playersHand, setPlayersHand] = useState([]);
     const [dealersHand, setDealersHand] = useState([]);
-    const [playerNum, setPlayerNum] = useState(1);
+    const [cards, setCards] = useState([]);
 
-   // const [cardImg, setCardImg] = useState();
+    const [deckApi, setDeckApi] = useState(null);
+
+    useEffect(() => {
+        fetch(deckofCards)
+        .then(response => {
+            return response.json();
+        }).then( json => {
+            setDeckApi(json);
+        })
+    }, []);
+
+    const SetTheHand = () => {
+        fetch(deckApi)
+        .then(response => {
+            return response.json();
+        })
+        .then( json.cards => {
+            setCards(cards);
+        })
+    }
+
+    // **** LEFT OFF HERE, Try to figure out how to deconstruct the api to find body and cards and ultimately the suit/cardimg/etc ***** //
+
+
+
+
+    /* 
+   
+    const [cardImg, setCardImg] = useState();
     const [gameStarted, setGameStarted] = useState(false);
-   // const [playerPlaying, setPlayerPlaying] = useState({ ...initialPlayerState });
+    const [playerPlaying, setPlayerPlaying] = useState({ ...initialPlayerState });
     const [isError, setError] = useState(false);
-   // const [playersScore, setPlayersScore] = useState(0);
-   // const [dealersScore, setDealersScore] = useState(0);
+
+    // (ABOVE) NOT REQUIRED YET
+
+    const [playersScore, setPlayersScore] = useState(0);
+    const [dealersScore, setDealersScore] = useState(0);
+
+    */
 
     useEffect(() => {
         fetch(DECK_OF_CARDS_API_ENDPOINT).then(resp => {
             return resp.json();
         }).then( json => {
             setApiState(json);
-        })/*.then( json => {
-            setDeckId({
-                deckId: json.deck_id
-            });
-        })*/
+        })
     }, []);
 
-    const startGame = () => {
+    const startAPIGame = () => {
+        setPlayersHand(apiState.body.cards);
+    };
+
+    const startGame = (() => {
         fetch(`${DECK_OF_CARDS_URL}/new/shuffle/?deck_count=1`)
         .then((resp) => resp.json())
-        .then((data) => {
-            setError(false);
-            setDeckId(data.deck_id);
+        .then((body) => {
+            setDeckId(body.deck_id);
         })
-        .catch((error) => {
-            console.error("error:", error);
-            setError(true);
-            setGameStarted("initial");
-        })
-    }
+    });
+    console.log(startGame);
+
 
     //SET DECK ID
     /*
@@ -102,7 +143,7 @@ const GameBoard = () => {
         //drawCardImg();
     }, [setPlayersHand, setCardImg]);
     */
-
+    /*
     const handleStartGame = () => {
         const playersDrawnCards = fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=2`).then((resp) => resp.data.cards);
         playersHand.push(playersDrawnCards);
@@ -112,29 +153,24 @@ const GameBoard = () => {
         dealersHand.push(dealersDrawnCards);
         setDealersHand(dealersHand);
     }
-    
+    */
     //DRAW CARDS*****
-    const drawCards = useCallback((player, num) => {
-        fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${num}`)
+    const drawCards = (() => {
+        fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`)
         .then((resp) => resp.json())
-        .then((data) => {
-            const currentDraw = data.cards;
-            const currentPoints = currentDraw
-            .map((e) => changeValue(e))
+        .then((body) => {
+            const setPlayersHand = body.cards;
+            const currentPoints = playersHand
+            //.map((e) => changeValue(e))
             .map((e) => parseInt(e.value))
             .reduce((total, curr) => {
                 return (total *= curr);
             }, 0);
 
-           // updatePlayer(player, currentDraw, currentPoints);
         })
-        .catch((error) => {
-            console.error("error:", error);
-            setError(true);
-            //resetGame();
-        });
+        
     }, 
-    [deckId]
+    [playersHand]
     );
 
     //UPDATE PLAYER*******
@@ -172,8 +208,10 @@ const GameBoard = () => {
         <div className="gameboard">
              <div>{JSON.stringify(apiState, null, 4)}</div>
              <Dealer />
-             <Hand drawCards={(num) => drawCards(num)} playersHand={playersHand} handleStartGame={handleStartGame} />
-             <Controls handleStartGame={handleStartGame} startGame={startGame} drawCards={drawCards}/>
+             <Hand drawCards={(num) => drawCards(num)} playersHand={playersHand} startAPIGame={startAPIGame} />
+             <Controls startGame={startGame} drawCards={drawCards} />
+             <Player startAPIGame={startAPIGame} />
+             <div>{json.stringify(deckApi, null, 6)}</div>
         </div>
        
         
