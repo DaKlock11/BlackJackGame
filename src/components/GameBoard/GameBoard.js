@@ -12,7 +12,6 @@ const DECK_OF_CARDS_URL = 'https://deckofcardsapi.com/api/deck';
 const deckofCards = 'https://deckofcardsapi.com/api/deck/new/';
 
 
-
 /*
 const initialPlayerState = {
     id: 1,
@@ -57,28 +56,29 @@ const GameBoard = () => {
     const [deckId, setDeckId] = useState("");
     const [playersHand, setPlayersHand] = useState([]);
     const [dealersHand, setDealersHand] = useState([]);
-    const [cards, setCards] = useState([]);
+    const [hand, setHand] = useState([]);
 
     const [deckApi, setDeckApi] = useState(null);
+    const [cardImg, setCardImg] = useState();
 
     useEffect(() => {
         fetch(deckofCards)
         .then(response => {
             return response.json();
-        }).then( json => {
-            setDeckApi(json);
+        }).then((body) => {
+            setDeckApi(body.deck_id);
         })
     }, []);
 
+
     const SetTheHand = () => {
-        fetch(deckApi)
-        .then(response => {
-            return response.json();
+        fetch(`https://deckofcardsapi.com/api/deck/${deckApi}/draw/?count=1`)
+        .then((response) => response.json())
+        .then( json => {
+            setHand(json.value);
+            setCardImg(json.image);
         })
-        .then( json.cards => {
-            setCards(cards);
-        })
-    }
+    };
 
     // **** LEFT OFF HERE, Try to figure out how to deconstruct the api to find body and cards and ultimately the suit/cardimg/etc ***** //
 
@@ -153,7 +153,7 @@ const GameBoard = () => {
         dealersHand.push(dealersDrawnCards);
         setDealersHand(dealersHand);
     }
-    */
+    
     //DRAW CARDS*****
     const drawCards = (() => {
         fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`)
@@ -172,7 +172,7 @@ const GameBoard = () => {
     }, 
     [playersHand]
     );
-
+    */
     //UPDATE PLAYER*******
     /*
     const updatePlayer = (player, draw, points) => {
@@ -208,10 +208,15 @@ const GameBoard = () => {
         <div className="gameboard">
              <div>{JSON.stringify(apiState, null, 4)}</div>
              <Dealer />
-             <Hand drawCards={(num) => drawCards(num)} playersHand={playersHand} startAPIGame={startAPIGame} />
-             <Controls startGame={startGame} drawCards={drawCards} />
+             <Hand />
+             <Controls />
              <Player startAPIGame={startAPIGame} />
-             <div>{json.stringify(deckApi, null, 6)}</div>
+             <div>{JSON.stringify(deckApi, null, 6)}</div>
+             <div>
+                {JSON.stringify(hand)}
+             </div>
+             <button onClick={SetTheHand}></button>
+             <img src={cardImg}/>
         </div>
        
         

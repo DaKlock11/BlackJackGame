@@ -25,21 +25,8 @@ const Hand = ({playersHand, drawCards}) => {
     return (
         <div className="Hand">
             <div>Your Hand</div>
-            {playersHand.draws === 0 ? (
-                <drawButton draw={() => drawCards(2)} />
-            ) : (
-                <drawButton draw={() => drawCards(1)} />
-            )}
-            
             <div className="cardHandler">
-                {playersHand.map((playersHand) => {
-                    return (
-                        <div key={playersHand.code}>
-                            <img src={playersHand.image} alt={`${playersHand.suit} ${playersHand.value}`}  />
-                        </div>
-                    )
-                    
-                })}
+                
             </div>
         </div>
     )

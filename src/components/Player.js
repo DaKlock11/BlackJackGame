@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const Player = ({ startApiGame, playersHand }) => {
+const Player = ({  }) => {
 
-    let drawnCards = playersHand.
 
 
 
