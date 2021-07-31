@@ -59,27 +59,63 @@ const GameBoard = () => {
     const [hand, setHand] = useState([]);
 
     const [deckApi, setDeckApi] = useState(null);
-    const [cardImg, setCardImg] = useState();
-
+    const [cardImg, setCardImg] = useState([]);
+    
+    
     useEffect(() => {
         fetch(deckofCards)
         .then(response => {
             return response.json();
-        }).then((body) => {
-            setDeckApi(body.deck_id);
+        }).then((json) => {
+            setDeckApi(json.deck_id);
         })
     }, []);
 
+    /*
+    useEffect(() => {
+        fetch(`https://deckofcardsapi.com/api/deck/${deckApi}/draw/?count=2`)
+        .then(res => res.json())
+        .then( data => {
+            setCardImg({
+                user: data.response.image[0],
+            });
+        });
+    }, []);
 
+    const ButtonClick = ({cardImg}) => {
+        setPlayersHand(cardImg.cards.value[0]);
+    }
+
+    */
+
+    /*
+    useEffect(() => {
+        fetch(`https://deckofcardsapi.com/api/deck/${deckApi}/draw/?count=2`)
+        .then((res) => {
+            return res.text();
+        })
+        .then((data) => {
+            setCardImg({ cardImg: JSON.parse(data.image)})
+        })
+    }, []);
+    
     const SetTheHand = () => {
-        fetch(`https://deckofcardsapi.com/api/deck/${deckApi}/draw/?count=1`)
-        .then((response) => response.json())
-        .then( json => {
-            setHand(json.value);
-            setCardImg(json.image);
+        let drawResponse = fetch(`https://deckofcardsapi.com/api/deck/${deckApi}/draw/?count=1`)
+        .then(drawResponse => drawResponse.json())
+        .then((data) => {
+            const currentHand = data.cards;
         })
     };
 
+    function setHand( st => ({
+        cards: [...st.currentHand, {
+            id: currentHand.code,
+            name: `${currentHand.suit} ${currentHand.value}`,
+            image: currentHand.image,
+        }]
+    }))
+
+    */ 
     // **** LEFT OFF HERE, Try to figure out how to deconstruct the api to find body and cards and ultimately the suit/cardimg/etc ***** //
 
 
@@ -212,11 +248,6 @@ const GameBoard = () => {
              <Controls />
              <Player startAPIGame={startAPIGame} />
              <div>{JSON.stringify(deckApi, null, 6)}</div>
-             <div>
-                {JSON.stringify(hand)}
-             </div>
-             <button onClick={SetTheHand}></button>
-             <img src={cardImg}/>
         </div>
        
         
