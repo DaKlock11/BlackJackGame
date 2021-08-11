@@ -11,7 +11,7 @@ const drawButton = ({ draw, isDisabled }) => {
 
     return (
        <figure>
-            <button className="playHandDrawCard" onClick={draw} disabled={isDisabled}>
+            <button className="playHandDrawCard" disabled={isDisabled}>
                 <img src={CardHolder} alt="Hidden Card" />
             </button>
        </figure> 
@@ -19,14 +19,16 @@ const drawButton = ({ draw, isDisabled }) => {
     )
 }
 
-const Hand = ({playersHand, drawCards}) => {
+const Hand = (playersHand, dealersHand, drawCard) => {
     
 
     return (
         <div className="Hand">
             <div>Your Hand</div>
             <div className="cardHandler">
-                
+              {/*}  {playersHand.map( card => {
+                   return <img src={card.image} key={card.code} alt="Card" />;
+                })} */}
             </div>
         </div>
     )

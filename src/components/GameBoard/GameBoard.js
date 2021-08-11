@@ -14,7 +14,6 @@ const GameBoard = () => {
     const [deckId, setDeckId] = useState(null);
     const [playersHand, setPlayersHand] = useState([]);
     const [dealersHand, setDealersHand] = useState([]);
-    const [hand, setHand] = useState([]);
     const [remainingCards, setRemainingCards] = useState(51);
     const [gameStarted, setGameStarted] = useState(false);
 
@@ -49,7 +48,7 @@ const GameBoard = () => {
                 const card = data.cards[0];
                 console.log(card);
 
-                setHand([...hand, {
+                setPlayersHand([...playersHand, {
                     code: card.code,
                     image: card.image,
                     value: card.value,
@@ -76,23 +75,40 @@ const GameBoard = () => {
 
     return (
         <div className="gameboard">
-             <div>{JSON.stringify(deckId, null, 4)}</div>
-             <div>
+            {/*<div>{JSON.stringify(deckId, null, 4)}</div>*/}
+            <div>
                 <button onClick={drawCard}>Click Me</button>
                 <div style={{ display: "flex", width: "5vw"}}>
-                     {hand.map( card => {
-                         return <img src={card.image} key={card.code} />;
-                     })}
+                    {playersHand.map( card => {
+                        return <img src={card.image} key={card.code} />;
+                    })}
                 </div>
             </div>
-            <Controls startGame={startGame} drawCard={drawCard} /> 
+            <Hand
+            owner="dealer"
+            cards={dealersHand}
+            drawCard={drawCard}
+            />
+            <div>
+                Dealer Total: 
+            </div>
+            <Controls
+            startGame={startGame}
+            onDrawCardClick={drawCard}
+            /> 
+            <Hand 
+            owner="player"
+            cards={playersHand}
+            drawCard={drawCard}
+            />
+            <div>
+                Player Total: 
+            </div>
+
             {/* <Dealer />
              <Hand />
              <Player /> */}
-             <div></div>
-
-
-             {/* 
+            {/* 
                 **BENS RECOMMENDED FORMAT**
                <div>
                     <Hand owner="dealer" />
@@ -108,7 +124,7 @@ const GameBoard = () => {
                     {if game is over, show 'play again' button}
                </div>
              
-             */}
+            */}
         </div>
        
         
