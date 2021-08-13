@@ -13,24 +13,12 @@ const GameBoard = () => {
     const [apiState, setApiState] = useState(null);
     const [deckId, setDeckId] = useState(null);
     const [playersHand, setPlayersHand] = useState([]);
+    const [playerCount, setPlayerCount] = useState(0);
     const [dealersHand, setDealersHand] = useState([]);
+    const [dealerCount, setDealerCount] = useState(0);
     const [remainingCards, setRemainingCards] = useState(51);
     const [gameStarted, setGameStarted] = useState(false);
-
     const [isError, setError] = useState(false);
-
-    const [playersScore, setPlayersScore] = useState(0);
-    const [dealersScore, setDealersScore] = useState(0);
-
-    /*
-    useEffect(() => {
-        fetch(DECK_OF_CARDS_API_ENDPOINT).then(resp => {
-            return resp.json();
-        }).then( json => {
-            setApiState(json);
-        })
-    }, []);
-    */
 
     useEffect(() => {
         fetch(DECK_OF_CARDS_API_ENDPOINT)
@@ -62,16 +50,77 @@ const GameBoard = () => {
         setRemainingCards(remainingCards - 1);
     }
 
+    function ReturnValue(value) {
+        const cardValues = {
+            ACE: 11,
+            2: 2,
+            3: 3,
+            4: 4,
+            5: 5,
+            6: 6,
+            7: 7,
+            8: 8,
+            9: 9,
+            10: 10,
+            JACK: 10,
+            QUEEN: 10,
+            KING: 10,
+        };
+        return cardValues[value];
+    }
+    /*
     const startGame = (() => {
         fetch(`${DECK_OF_CARDS_API_ENDPOINT}/new/shuffle/?deck_count=1`)
         .then((resp) => resp.json())
         .then((body) => {
             setDeckId([body.deck_id]);
         })
-    });
-    console.log(startGame);
+    }, []);
+    //console.log(startGame);
+    */
 
+    //BELOW ARE THE BUTTON EVENTS AND CARD DEAL EVENTS FOR PLAYER AND DEALER
+    const hit = (() => {
+        fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`)
+        .then((resp) => resp.json())
+        .then((data) => {
+           const card = data.cards[0];
+
+           setPlayersHand([...playersHand, {
+               code: card.code,
+               image: card.image,
+               value: card.value,
+               suit: card.suit
+           }])
+        })
+    }, [deckId, remainingCards]);
     
+    function DealHand() {
+        fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=4`)
+        .then((res) => res.json())
+        .then((json) => {
+            console.log(json);
+        })
+
+        const value0= ReturnValue(json.cards[0].value);
+        const value1= ReturnValue(json.cards[1].value);
+        const value2= ReturnValue(json.cards[2].value);
+        const value3= ReturnValue(json.cards[3].value);
+
+        if (value0 === 11 && value2 === 11) {
+            setGameStarted(true);
+            setPlayersHand([...playersHand, json.cards[0], json.cards[2]]);
+            setPlayerCount(12);
+            setDealersHand([...dealersHand], json.cards[1], json.cards[3]);
+            setDealerCount(dealerCount + value1 + value3);
+        } else if(value0 === 11 || value2 === 11) {
+            setGameStarted(true);
+            setPlayersHand([...playersHand, json.cards[0], json.cards[2]]);
+            setPlayerCount(playerCount + value0 + value2);
+            setDealersHand([...dealersHand], json.cards[1], json.cards[3]);
+            setDealerCount(dealerCount + value1 + value3);
+        }
+    }
 
     return (
         <div className="gameboard">
@@ -93,8 +142,10 @@ const GameBoard = () => {
                 Dealer Total: 
             </div>
             <Controls
-            startGame={startGame}
+            //startGame={startGame}
             onDrawCardClick={drawCard}
+            hit={hit}
+            //stay={stay}
             /> 
             <Hand 
             owner="player"

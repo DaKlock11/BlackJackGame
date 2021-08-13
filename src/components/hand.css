@@ -1,7 +1,9 @@
-.Hand {
+.dealer-hand {
     background-color: darkgrey;
 }
-
+.player-hand {
+    background-color: darkgrey;
+}
 .cardHandler {
     display: flex;
     flex-direction: row;

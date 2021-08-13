@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './hand.css';
-
+/*
 const drawButton = ({ draw, isDisabled }) => {
 
     let CardHolder_URL = 'https://raw.githubusercontent.com/PTR-KLK/oko-card-game/master/src/back.png'
@@ -18,20 +18,33 @@ const drawButton = ({ draw, isDisabled }) => {
         
     )
 }
+*/
 
-const Hand = (playersHand, dealersHand, drawCard) => {
+const Hand = (playersHand, dealersHand, drawCard, owner) => {
     
-
-    return (
-        <div className="Hand">
-            <div>Your Hand</div>
-            <div className="cardHandler">
-              {/*}  {playersHand.map( card => {
-                   return <img src={card.image} key={card.code} alt="Card" />;
-                })} */}
+    if(owner === "dealer") {
+        return (
+            <div className="dealer-hand">
+                <div>Dealer Hand</div>
+                <div className="cardHandler">
+                    
+                </div>
             </div>
-        </div>
-    )
+        )
+    }
+    if(owner === "player") {
+        return (
+            <div className="player-hand">
+                <div>Your Hand</div>
+                <div className="cardHandler">
+                  {/*}  {playersHand.map( card => {
+                       return <img src={card.image} key={card.code} alt="Card" />;
+                    })} */}
+                </div>
+            </div>
+        )
+    }
+    
 }
 
 export default Hand;
