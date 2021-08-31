@@ -1,10 +1,20 @@
-.dealer-hand {
-    background-color: darkgrey;
-}
+
 .player-hand {
-    background-color: darkgrey;
+    padding: 2px;
+}
+.text {
+    font-size: 3vw;
+    color: lightgoldenrodyellow;
+    font-family: cursive;
 }
 .cardHandler {
+    width: 60%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.cards {
+    width: 15%;
     display: flex;
     flex-direction: row;
 }

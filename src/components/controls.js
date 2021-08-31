@@ -1,17 +1,17 @@
 import React, { useState,useEffect } from 'react';
+import './controls.css';
 
-const Controls = (Hit, DealHand) => {
-
+const Controls = (props) => {
+    const { Hit, reset } = props;
 
     return (
 
         <div className="controls">
-            <button onClick={DealHand}>START GAME</button>
-            <button onClick={Hit}>Hit</button>
-            <button>Stay</button>
-            <button>Reset</button>
+            <button className="btn" onClick={Hit}>Hit</button>
+            <button className="btn" >Stay</button>
+            <button className="btn" onClick={reset}>Reset</button>
         </div>
-    )
+    );
 };
 
 

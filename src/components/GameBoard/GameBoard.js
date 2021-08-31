@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useReducer } from 'react';
 import Hand from '../hand';
 import Dealer from '../dealer';
 import Controls from '../controls';
@@ -8,155 +8,222 @@ import './GameBoard.css';
 
 const DECK_OF_CARDS_API_ENDPOINT = 'https://deckofcardsapi.com/api/deck/new/shuffle';
 
+//Functions to convert default API obj values => game values **returnValue & convertCard**
+const returnValue = (value) => {
+    const cardValues = {
+        "ACE": 11,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "10": 10,
+        "JACK": 10,
+        "QUEEN": 10,
+        "KING": 10
+    };
+    return cardValues[value];
+};
+
+const convertCard = (card) => {
+    const copy = { ...card };
+    const value = returnValue(copy.value[0]);
+    const newCard = {
+        code: copy.code,
+        suit: copy.suit,
+        image: copy.image,
+        value
+    };
+  return newCard;
+};
+
+
+    const initialState = {
+        cardDeck: {},
+        playersHand: [],
+        playerCount: 0,
+        dealersHand: [],
+        dealerCount: 0,
+        remainingCards: 52,
+        gameStarted: false,
+        isError: false
+    };
+
+    const Reducer = (state, action) => {
+        switch(action.type) {
+            case "UPDATE_PLAYERS_HAND":
+                return {
+                    ...state,
+                    playersHand: [...action.hand] // Note action.hand
+                }
+            case 'UPDATE_GAMESTARTED':
+                return {
+                    ...state,
+                    gameStarted: action.value
+                }
+            case 'UPDATE_PLAYERCOUNT':
+                return {
+                    ...state,
+                    playerCount: action.number
+                }
+            case 'UPDATE_DEALER_HAND': 
+                return {
+                    ...state,
+                    dealersHand: [...action.hand]
+                };            
+            case 'UPDATE_DEALERCOUNT': 
+                return {
+                    ...state,
+                    dealerCount: action.number
+                };
+            case 'UPDATE_REMAINING_CARDS': 
+                return {
+                    ...state,
+                    remainingCards: action.number
+                }
+            case 'RESET_GAME': {
+                return {
+                    ...initialState,
+                    playersHand: [],
+                    playerCount: 0,
+                    dealersHand: [],
+                    dealerCount: 0,
+                    remainingCards: 52,
+                    gameStarted: false,
+                    isError: false
+                };
+            }
+            
+            default: 
+                return state;
+        }   
+    }
+
+
+// LESSON HOMEWORK FOR 9/5 - remove ALL uses of useState()
+//                          - Fix ResetGame rendering issue
+//                          - Clean up commented / dead code
+
 const GameBoard = () => {
     
-    const [apiState, setApiState] = useState(null);
-    const [deckId, setDeckId] = useState(null);
-    const [playersHand, setPlayersHand] = useState([]);
-    const [playerCount, setPlayerCount] = useState(0);
-    const [dealersHand, setDealersHand] = useState([]);
-    const [dealerCount, setDealerCount] = useState(0);
-    const [remainingCards, setRemainingCards] = useState(52);
-    const [gameStarted, setGameStarted] = useState(false);
+
+    const [state, dispatch] = useReducer(Reducer, initialState);
+
+    const [cardDeck, setCardDeck] = useState({
+        id: {},
+        remaining: 52,
+        shuffled: false
+    });
+    //const [playerCount, setPlayerCount] = useState(0);
+    //const [dealersHand, setDealersHand] = useState([]);
+    //const [dealerCount, setDealerCount] = useState(0);
+    //const [remainingCards, setRemainingCards] = useState(52);
     const [isError, setError] = useState(false);
 
     useEffect(() => {
-        fetch(DECK_OF_CARDS_API_ENDPOINT)
-        .then((res) => res.json())
-        .then((data) => {
-            setDeckId(data.deck_id);
-            setRemainingCards(data.remaining);
+            fetch(DECK_OF_CARDS_API_ENDPOINT)
+            .then((res) => res.json())
+            .then((data) => {
+            setCardDeck({
+                id: data.deck_id,
+                remaining: data.remaining,
+                shuffled: data.shuffled
+            });
         })
     }, []);
-    /*
-    useEffect(() => {
-        if (deckId !== null) {
-            fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`)
-            .then(res => res.json())
-            .then((data) => {
-                const card = data.cards[0];
-                console.log(card);
-
-                setPlayersHand([...playersHand, {
-                    code: card.code,
-                    image: card.image,
-                    value: card.value,
-                    suit: card.suit
-                }])
-            })
-        }
-    }, [deckId, remainingCards]);
-
-    const drawCard = () => {
-        setRemainingCards(remainingCards - 1);
-    }
-    */
-
-
-    //Function to convert default API obj values => game values
-    function returnValue(value) {
-        const cardValues = {
-            "ACE": 11,
-            "2": 2,
-            "3": 3,
-            "4": 4,
-            "5": 5,
-            "6": 6,
-            "7": 7,
-            "8": 8,
-            "9": 9,
-            "10": 10,
-            "JACK": 10,
-            "QUEEN": 10,
-            "KING": 10,
-        };
-        return cardValues[value];
-    }
+    
   
     //BELOW ARE THE BUTTON EVENTS AND CARD DEAL EVENTS FOR PLAYER AND DEALER
-    const RestGame = () => {
+    const ResetGame = () => {
 
+        dispatch({ type: 'RESET_GAME' });
+        // dispatch({ type: 'UPDATE_GAMESTARTED', value: false });
+        // dispatch({ type: 'UPDATE_PLAYERCOUNT', number: 0});
+        // dispatch({type: 'UPDATE_PLAYER_HAND', hand: [] });
+        // setDealerCount(0);
+        // setDealersHand([]);
+        // setRemainingCards(52);
+        // setCardDeck({});
     }
     //WHEN PLAYER HITS 'START'
-    function DealHand() {
-        const url = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=3`;
-        let res = fetch(url).then(res => res.json()).then((data) => {
-            const newCard = data.cards[0];
-            const newCardOne = data.cards[1];
-            const newCardTwo = data.cards[2];
+    const DealHand = () => {
+        const url = `https://deckofcardsapi.com/api/deck/${cardDeck.id}/draw/?count=3`;
+        fetch(url)
+        .then(res => res.json()).then((data) => {
+            let newCardZero = data.cards[0];
+            let newCardOne = data.cards[1];
+            let newCardTwo = data.cards[2];
 
-            let dealt = [...playersHand];
-            let dealerDealt = [...dealersHand];
-            setPlayersHand([...playersHand, {
-                code: card.code,
-                suit: card.suit,
-                image: card.image,
-                value: card.value
-            }])
-            setDealersHand([...dealersHand, {
-                code: card.code,
-                suit: card.suit,
-                image: card.image,
-                value: card.value
-            }])
-            dealt.push(newCard);
-            dealerDealt.push(newCardOne);
-            dealt.push(newCardTwo);
-
-            setGameStarted(true);
-
-            const value0 = returnValue(data.cards[0].value);
-            const value1 = returnValue(res.cards[1].value);
-            const value2 = returnValue(res.cards[2].value);
-
-            if (value0 === 11 && value2 === 11) {
-            setGameStarted(true);
-            setPlayersHand([...playersHand, res.cards[0], res.cards[2]]);
-            setPlayerCount(12);
-            setDealersHand([...dealersHand], res.cards[1]);
-            setDealerCount(dealerCount + value1);
-            } else if(value0 === 11 || value2 === 11) {
-            setGameStarted(true);
-            setPlayersHand([...playersHand, res.cards[0], res.cards[2]]);
-            setPlayerCount(playerCount + value0 + value2);
-            setDealersHand([...dealersHand], res.cards[1]);
-            setDealerCount(dealerCount + value1);
-            } else if(value0 === value2) {
-            setGameStarted(true);
-            setPlayersHand([...playersHand, res.cards[0], res.cards[2]]);
-            setPlayerCount(playerCount + value0 + value2);
-            setDealersHand([...dealersHand], res.cards[1]);
-            setDealerCount(dealerCount + value1);
-            } else {
-            setGameStarted(true);
-            setPlayersHand([...playersHand, res.cards[0], res.cards[2]]);
-            setPlayerCount(playerCount + value0 + value2);
-            setDealersHand([...dealersHand], res.cards[1]);
-            setDealerCount(dealerCount + value1);
-            };
+            if (cardDeck.remaining > 0) {
+                dispatch({ type: 'UPDATE_PLAYERS_HAND', hand: [...state.playersHand, newCardZero, newCardTwo]});
+                dispatch({ type: 'UPDATE_DEALER_HAND', hand: [...state.dealersHand, newCardOne]});
+                //setDealersHand([...dealersHand, newCardOne]);
+                const valueZero = returnValue(data.cards[0].value);
+                const valueOne = returnValue(data.cards[1].value);
+                const valueTwo = returnValue(data.cards[2].value);
+                dispatch({ type: 'UPDATE_PLAYERCOUNT', number: state.playerCount + valueZero + valueTwo});
+                dispatch({type: 'UPDATE_DEALERCOUNT', number: state.dealerCount + valueOne});
+                //setDealerCount(dealerCount + valueOne);
+            }
+            dispatch({ type: 'UPDATE_GAMESTARTED', value: true });
+            dispatch({ type: 'UPDATE_REMAINING_CARDS', number: state.remainingCards - 3});
+            //setRemainingCards(remainingCards - 3);
         })
-
-        // THIS IS THE CONVERSION FUNCTION CREATED ABOVE BEING USED TO SET AND CHECK THE VALUES OF THE INITIALLY DEALT CARDS
-        
     }
     // WHEN PLAYER 'HITS'
-    const hit = () => {
-        const drawOne = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`;
-        fetch(drawOne)
-        .then((resp) => resp.json())
-        .then((data) => {
-           const card = data.cards[0];
-           setPlayersHand(...playersHand => [...playersHand, card]);
-           const value = returnValue(data.cards[0].value);
-           setPlayerCount(playerCount + value);
-        })
-    }
-    
-    
+        const Hit = () => {
+            const drawOne = `https://deckofcardsapi.com/api/deck/${cardDeck.id}/draw/?count=1`;
+            fetch(drawOne)
+            .then((resp) => resp.json())
+            .then((data) => {
+               const card = data.cards[0];
+               dispatch({type: 'UPDATE_PLAYERS_HAND', hand: [...state.playersHand, card]});
+               const value = returnValue(data.cards[0].value);
+               dispatch({type: 'UPDATE_PLAYERCOUNT', number: state.playerCount + value});
+               dispatch({type: 'UPDATE_REMAINING_CARDS', number: state.remainingCards - 1});
+               //setRemainingCards(remainingCards - 1);
+            })
+        }
 
-    return (
+
+    return !state.gameStarted ? (
+        <div>
+            <h1>Ready to Play?</h1>
+            <button onClick={DealHand}>Let's Play!</button>
+        </div>
+    ) : 
+     (
         <div className="gameboard">
-            {/*<div>{JSON.stringify(deckId, null, 4)}</div>*/}
+            <Dealer
+            hand={state.dealersHand}
+            />
+            <div className="card-score">
+                Dealer Score: {state.dealerCount}
+            </div>
+            <Controls
+            Hit={Hit}
+            //stay={stay}
+            reset={ResetGame}
+            /> 
+            <Hand 
+            owner="player"
+            playHand={state.playersHand}
+            />
+            <div className="card-score">
+                Player Score: {state.playerCount}
+            </div>
+        </div>     
+    )
+};
+
+export default GameBoard;
+
+
+
+  {/*<div>{JSON.stringify(deckId, null, 4)}</div>*/}
             {/*
             <div>
                 <button onClick={drawCard}>Click Me</button>
@@ -168,24 +235,7 @@ const GameBoard = () => {
                 </div>
             </div>
             */}
-            <Dealer
-            dealersHand={dealersHand}
-            />
-            <div>
-                Dealer Total: {dealerCount}
-            </div>
-            <Controls
-            hit={hit()}
-            DealHand={DealHand()}
-            //stay={stay}
-            /> 
-            <Hand 
-            owner="player"
-            playersHand={playersHand}
-            />
-            <div>
-                Player Total: {playerCount}
-            </div>
+
 
             {/* <Dealer />
              <Hand />
@@ -207,10 +257,61 @@ const GameBoard = () => {
                </div>
              
             */}
-        </div>
-       
-        
-    )
-};
+            // useEffect(() => {
+    //     if (deckId !== null) {
+    //         fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`)
+    //         .then(res => res.json())
+    //         .then((data) => {
+    //             const card = data.cards[0];
+    //             console.log(card);
 
-export default GameBoard;
+    //             setPlayersHand([...playersHand, {
+    //                 code: card.code,
+    //                 image: card.image,
+    //                 value: card.value,
+    //                 suit: card.suit
+    //             }])
+    //         })
+    //     }
+    // }, [deckId, remainingCards]);
+
+
+/*
+const Reducer = (state, action) => {
+    switch (action.type) {
+        case 'DRAW_CARD': {
+            // Return a new state value depending on the values passed
+            // in from action
+            if (action.owner === 'player') {
+                return {
+                    ...state,
+                    playersHand: [...state.playersHand, card]
+                };
+            }
+            
+        }
+
+        default: {
+            return state;
+        }
+    }
+}
+*/
+// useReducer requires the following:
+    // Actions
+    // reducer function (big switch case)
+
+    // state - This is what useReducer will do!
+    /*
+    initialState
+        {
+            apiState: null,
+            deckId: null,
+            playerHand: [],
+            playerCount: 0,
+            dealersHand: [],
+            dealerCount: 0
+        }
+    */
+   //const [state, dispatch ] = useReducer(initialState, Reducer);
+    //dispatch({ type: 'DRAW_CARD', card: convertCard(someCard), owner: 'player'} )

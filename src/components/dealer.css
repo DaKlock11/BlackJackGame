@@ -1,3 +1,16 @@
 .Dealer {
-    background-color: papayawhip;
+    padding: 2px;
+}
+.text {
+    font-size: 3vw;
+    color: lightgoldenrodyellow;
+    font-family: cursive;
+}
+.dealer-hand {
+    width: 60%;
+    display: flex;
+    justify-content: center;
+}
+.cards {
+    width: 15%;
 }

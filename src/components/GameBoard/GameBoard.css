@@ -1,3 +1,12 @@
 .gameboard {
-    background-color: rgb(red, rgb(0, 78, 0), blue);
+    /*background-color: rgb(red, rgb(0, 78, 0), blue);*/
+    background-image: url("http://i.stack.imgur.com/q02th.jpg");
+    height: 100%;
+}
+.card-score {
+    font-size: 3vw;
+    padding: .9vw;
+    margin: .5vw;
+    color: mediumorchid;
+    font-style: italic;
 }

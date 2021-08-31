@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './hand.css';
 
-const Hand = ({playersHand}) => {
-
+const Hand = ({owner, playHand}) => {   
         return (
             <div className="player-hand">
-                <div>Your Hand</div>
+                <div className="text">Your Hand</div> 
                 <div className="cardHandler">
-                  {playersHand.map((c) => {
-                       <img src={c["image"]} key={c["image"]} alt="Card" />;
+                  {playHand.map((c) => {
+                       return <img className="cards" src={c["image"]} key={c["code"]} alt="Card" />;
                     })}
                 </div>
             </div>
