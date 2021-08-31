@@ -1,3 +1,9 @@
 .controls {
     padding: .5vw;
+    margin: .5vw;
+}
+.btn {
+    font-size: 2vw;
+    padding: 1vw;
+    margin: .5vw;
 }
