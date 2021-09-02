@@ -49,6 +49,8 @@ const convertCard = (card) => {
         dealerCount: 0,
         remainingCards: 52,
         gameStarted: false,
+        playerWin: false,
+        dealerWin: false,
         isError: false
     };
 
@@ -84,6 +86,21 @@ const convertCard = (card) => {
                     ...state,
                     remainingCards: action.number
                 }
+            case 'UPDATE_PLAYER_WIN':
+                return {
+                    ...state,
+                    playerWin: action.value
+                }
+            case 'UPDATE_DEALER_WIN':
+                return {
+                    ...state,
+                    dealerWin: action.value
+                }
+            case 'UPDATE_WINNER':
+                return {
+                    ...state,
+                    winner: action.value
+                }
             case 'RESET_GAME': {
                 return {
                     ...initialState,
@@ -93,6 +110,9 @@ const convertCard = (card) => {
                     dealerCount: 0,
                     remainingCards: 52,
                     gameStarted: false,
+                    playerWin: false,
+                    dealerWin: false,
+                    winner: "",
                     isError: false
                 };
             }
@@ -117,10 +137,7 @@ const GameBoard = () => {
         remaining: 52,
         shuffled: false
     });
-    //const [playerCount, setPlayerCount] = useState(0);
-    //const [dealersHand, setDealersHand] = useState([]);
-    //const [dealerCount, setDealerCount] = useState(0);
-    //const [remainingCards, setRemainingCards] = useState(52);
+    
     const [isError, setError] = useState(false);
 
     useEffect(() => {
@@ -174,20 +191,40 @@ const GameBoard = () => {
         })
     }
     // WHEN PLAYER 'HITS'
-        const Hit = () => {
-            const drawOne = `https://deckofcardsapi.com/api/deck/${cardDeck.id}/draw/?count=1`;
-            fetch(drawOne)
-            .then((resp) => resp.json())
+    const Hit = () => {
+        const drawOne = `https://deckofcardsapi.com/api/deck/${cardDeck.id}/draw/?count=1`;
+        fetch(drawOne)
+        .then((resp) => resp.json())
+        .then((data) => {
+            const card = data.cards[0];
+            dispatch({type: 'UPDATE_PLAYERS_HAND', hand: [...state.playersHand, card]});
+            const value = returnValue(data.cards[0].value);
+            dispatch({type: 'UPDATE_PLAYERCOUNT', number: state.playerCount + value});
+            dispatch({type: 'UPDATE_REMAINING_CARDS', number: state.remainingCards - 1});
+            //setRemainingCards(remainingCards - 1);
+        })
+        if(state.playerCount === 21) {
+            dispatch({type: 'UPDATE_PLAYER_WIN', value: true});
+        }
+        if(state.playerCount > 21) {
+            dispatch({type: 'UPDATE_DEALER_WIN', value: true});
+        }
+    }
+    //WHEN PLAYER CLICKS 'STAND'
+    const Stand = () => {
+        if(state.dealerCount < 17) {
+            const draw = `https://deckofcardsapi.com/api/deck/${cardDeck.id}/draw/?count=1`;
+            fetch(draw)
+            .then(res => res.json())
             .then((data) => {
-               const card = data.cards[0];
-               dispatch({type: 'UPDATE_PLAYERS_HAND', hand: [...state.playersHand, card]});
-               const value = returnValue(data.cards[0].value);
-               dispatch({type: 'UPDATE_PLAYERCOUNT', number: state.playerCount + value});
-               dispatch({type: 'UPDATE_REMAINING_CARDS', number: state.remainingCards - 1});
-               //setRemainingCards(remainingCards - 1);
+                const card = data.cards[0];
+                dispatch({type: 'UPDATE_DEALER_HAND', hand: [...state.dealersHand, card]});
+                const value = returnValue(data.cards[0].value);
+                dispatch({type: 'UPDATE_DEALERCOUNT', number: state.dealerCount + value});
+                dispatch({type: 'UPDATE_REMAINING_CARDS', number: state.remainingCards - 1});
             })
         }
-
+    }
 
     return !state.gameStarted ? (
         <div>
@@ -205,7 +242,7 @@ const GameBoard = () => {
             </div>
             <Controls
             Hit={Hit}
-            //stay={stay}
+            Stand={Stand}
             reset={ResetGame}
             /> 
             <Hand 
@@ -315,3 +352,8 @@ const Reducer = (state, action) => {
     */
    //const [state, dispatch ] = useReducer(initialState, Reducer);
     //dispatch({ type: 'DRAW_CARD', card: convertCard(someCard), owner: 'player'} )
+
+    //const [playerCount, setPlayerCount] = useState(0);
+    //const [dealersHand, setDealersHand] = useState([]);
+    //const [dealerCount, setDealerCount] = useState(0);
+    //const [remainingCards, setRemainingCards] = useState(52);
